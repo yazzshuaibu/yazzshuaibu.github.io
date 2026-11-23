@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<meta property="og:title" content="Baze University AI demo">
+<meta property="og:description" content="Your whole uni in one WhatsApp chat. Tap through the demo.">
+<meta name="description" content="Your whole uni in one WhatsApp chat. Tap through the demo.">
+<title>Baze University AI demo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#F3F4F0; --surface:#FFFFFF; --ink:#16202A; --muted:#56616B; --line:#D9DDD5;
+  --biro:#1D4ED8; --biro-tint:#E4EAFB; --highlight:#F3D34A; --good:#1F7A4D; --bad:#B42318; --chat-bg:#EDEFE9;
+  --display:"Bricolage Grotesque","Helvetica Neue",Arial,sans-serif;
+  --body:"IBM Plex Sans","Helvetica Neue",Arial,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root{--paper:#11161C;--surface:#1A2129;--ink:#E8ECEF;--muted:#A3ADB6;--line:#2C3640;--biro:#7FA2FF;--biro-tint:#22304F;--highlight:#E6C53A;--good:#5BC28C;--bad:#F2877E;--chat-bg:#151B22;color-scheme:dark}
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--paper);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.5}
+button{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--biro);outline-offset:2px}
+h1,h2,h3{font-family:var(--display);margin:0;line-height:1.15;text-wrap:balance}
+.wrap{max-width:1000px;margin:0 auto;padding:14px 14px 32px}
+.top{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px 16px;margin-bottom:14px}
+.brand{display:flex;align-items:center;gap:10px}
+.mark{width:34px;height:34px;border-radius:10px;background:var(--biro);color:var(--paper);display:grid;place-items:center;font-family:var(--display);font-weight:700;font-size:17px}
+.brand h1{font-size:19px}
+.brand p{margin:0;color:var(--muted);font-size:12.5px}
+.tabs{display:flex;gap:4px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:4px}
+.tabs a{padding:8px 13px;border-radius:9px;text-decoration:none;color:var(--muted);font-weight:500;font-size:14px}
+.tabs a[aria-current="page"]{background:var(--ink);color:var(--paper)}
+.btn{border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:8px 16px;cursor:pointer;font-weight:500;font-size:15px;min-height:44px}
+.btn.primary{background:var(--biro);border-color:var(--biro);color:var(--paper)}
+.btn:disabled{opacity:.45;cursor:default}
+.page{display:none}.page.show{display:block}
+
+/* phone */
+.phone{width:100%;max-width:400px;height:min(760px,calc(100dvh - 190px));min-height:480px;margin:0 auto;background:var(--surface);border:1px solid var(--line);border-radius:36px;padding:10px;box-shadow:0 20px 50px -24px rgba(22,32,42,.35);position:relative}
+@media (max-width:520px){.phone{border:0;border-radius:18px;padding:0;box-shadow:none;height:calc(100dvh - 200px)}}
+.screen{height:100%;border-radius:28px;overflow:hidden;display:flex;flex-direction:column;background:var(--chat-bg);position:relative}
+@media (max-width:520px){.screen{border-radius:18px;border:1px solid var(--line)}}
+.chat-head{display:flex;align-items:center;gap:10px;padding:12px 14px;background:var(--surface);border-bottom:1px solid var(--line)}
+.avatar{width:38px;height:38px;border-radius:50%;background:var(--biro);color:var(--paper);display:grid;place-items:center;font-family:var(--display);font-weight:700}
+.chat-head strong{display:block;font-size:15px}
+.chat-head span{font-size:12px;color:var(--muted)}
+.chat{flex:1;overflow-y:auto;padding:14px 12px 18px;display:flex;flex-direction:column;gap:8px;scroll-behavior:smooth}
+.day{align-self:center;font-size:11px;font-family:var(--mono);color:var(--muted);background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:2px 10px;margin:6px 0}
+.msg{max-width:84%;padding:9px 12px 7px;border-radius:14px;font-size:14px;line-height:1.45;white-space:pre-line}
+.msg.bot{align-self:flex-start;background:var(--surface);border:1px solid var(--line);border-top-left-radius:4px}
+.msg.me{align-self:flex-end;background:var(--biro-tint);border-top-right-radius:4px}
+.msg .time{display:block;text-align:right;font-family:var(--mono);font-size:10px;color:var(--muted);margin-top:3px}
+.tag{display:inline-block;font-family:var(--mono);font-size:10.5px;color:var(--muted);border:1px solid var(--line);border-radius:6px;padding:1px 6px;margin-bottom:5px}
+.src{display:inline-flex;align-items:center;gap:6px;margin-top:8px;font-family:var(--mono);font-size:11.5px;background:var(--paper);border:1px solid var(--line);border-radius:8px;padding:4px 8px;white-space:normal}
+.src i{width:8px;height:8px;border-radius:2px;background:var(--highlight);display:inline-block}
+.actions{display:flex;flex-direction:column;margin:8px -12px -7px;border-top:1px solid var(--line)}
+.actions button{background:none;border:0;border-bottom:1px solid var(--line);padding:10px;color:var(--biro);font-weight:600;cursor:pointer;min-height:44px}
+.actions button:last-child{border-bottom:0}
+.chips{align-self:flex-start;display:flex;flex-wrap:wrap;gap:6px;max-width:92%}
+.chips button{border:1px solid var(--biro);background:var(--surface);color:var(--biro);border-radius:999px;padding:7px 12px;font-size:13px;font-weight:600;cursor:pointer;min-height:36px}
+.pin{margin-top:8px;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--paper);white-space:normal}
+.pin svg{display:block;width:100%;height:90px}
+.pin div{padding:7px 10px;font-size:12.5px}
+.pin b{display:block;font-size:13px}
+.voice{display:flex;align-items:center;gap:10px;white-space:normal}
+.voice .play{width:30px;height:30px;border-radius:50%;background:var(--biro);display:grid;place-items:center;flex:none}
+.voice .wave{display:flex;align-items:center;gap:2px;height:24px}
+.voice .wave i{width:3px;border-radius:2px;background:var(--biro);opacity:.7;display:block}
+.voice small{font-family:var(--mono);font-size:11px;color:var(--muted)}
+.quizcard{white-space:normal}
+.quizcard b{display:block;font-family:var(--display);font-size:16px;margin:2px 0}
+.typing{align-self:flex-start;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:10px 14px;display:flex;gap:4px}
+.typing i{width:6px;height:6px;border-radius:50%;background:var(--muted);display:block;animation:blink 1s infinite}
+.typing i:nth-child(2){animation-delay:.15s}.typing i:nth-child(3){animation-delay:.3s}
+@keyframes blink{0%,80%,100%{opacity:.25}40%{opacity:1}}
+@media (prefers-reduced-motion:reduce){.typing i{animation:none}.chat{scroll-behavior:auto}}
+.composer{display:flex;align-items:center;gap:8px;padding:10px 12px;background:var(--surface);border-top:1px solid var(--line)}
+.composer span{flex:1;border:1px solid var(--line);border-radius:999px;padding:8px 14px;font-size:13px;color:var(--muted)}
+.composer i{width:36px;height:36px;border-radius:50%;background:var(--biro);display:grid;place-items:center}
+.web{position:absolute;inset:0;background:var(--surface);display:none;flex-direction:column;z-index:3}
+.web.open{display:flex}
+.web-bar{display:flex;align-items:center;gap:8px;padding:10px 12px;border-bottom:1px solid var(--line);font-size:12px;color:var(--muted);font-family:var(--mono)}
+.web-bar button{margin-left:auto}
+.web-body{padding:18px 16px;overflow-y:auto;flex:1}
+.web-body h3{font-size:20px;margin-bottom:4px}
+.meta{font-family:var(--mono);font-size:11.5px;color:var(--muted)}
+.progress{height:6px;background:var(--line);border-radius:3px;margin:14px 0 18px;overflow:hidden}
+.progress i{display:block;height:100%;width:20%;background:var(--biro)}
+.q{font-weight:600;margin:0 0 12px}
+.opt{display:block;width:100%;text-align:left;border:1px solid var(--line);background:var(--surface);border-radius:12px;padding:12px 14px;margin-bottom:8px;cursor:pointer;min-height:48px}
+.opt.right{border-color:var(--good);background:color-mix(in srgb,var(--good) 12%,var(--surface))}
+.opt.wrong{border-color:var(--bad);background:color-mix(in srgb,var(--bad) 10%,var(--surface))}
+.explain{border-left:3px solid var(--highlight);background:var(--paper);padding:10px 12px;border-radius:0 10px 10px 0;font-size:13.5px;margin-top:12px}
+.controls{max-width:400px;margin:12px auto 0;display:grid;grid-template-columns:1fr auto 1fr;gap:8px;align-items:center}
+.controls .count{font-family:var(--mono);font-size:12.5px;color:var(--muted);text-align:center;min-width:64px}
+.controls .restart{grid-column:1/-1;background:none;border:0;color:var(--muted);font-size:13px;cursor:pointer;min-height:36px;text-decoration:underline}
+
+/* report */
+.doc{max-width:900px;margin:0 auto;display:grid;gap:14px}
+.doc-head{display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px;align-items:flex-end}
+.doc-head h2{font-size:28px}
+.eyebrow{font-family:var(--mono);font-size:11.5px;color:var(--muted);letter-spacing:.04em;text-transform:uppercase}
+.sample{font-family:var(--mono);font-size:11.5px;border:1px dashed var(--muted);border-radius:8px;padding:4px 8px;color:var(--muted)}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:18px}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+@media (max-width:640px){.stats{grid-template-columns:1fr}}
+.stat b{display:block;font-family:var(--display);font-size:28px;font-variant-numeric:tabular-nums}
+.stat span{color:var(--muted);font-size:13px}
+.topic{display:grid;grid-template-columns:32px 1fr;gap:12px;padding:14px 0;border-top:1px solid var(--line)}
+.topic:first-of-type{border-top:0;padding-top:4px}
+.topic .rank{font-family:var(--display);font-size:22px;color:var(--biro)}
+.topic h3{font-size:17px;margin-bottom:4px}
+.topic p{margin:0 0 8px;color:var(--muted);font-size:14px}
+.bar{display:grid;grid-template-columns:1fr 70px;align-items:center;gap:10px;font-family:var(--mono);font-size:12px}
+.bar .track{height:8px;background:var(--line);border-radius:4px;overflow:hidden}
+.bar .track i{display:block;height:100%;background:var(--biro)}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media (max-width:720px){.two{grid-template-columns:1fr}}
+.quote{border-left:3px solid var(--line);padding:4px 0 4px 12px;margin:0 0 10px;font-size:14px}
+ul.clean{margin:0;padding-left:18px}
+ul.clean li{margin-bottom:6px}
+.fine{font-size:13px;color:var(--muted)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="brand">
+      <div class="mark" aria-hidden="true">B</div>
+      <div>
+        <h1>Baze University AI</h1>
+        <p>Powered by Seatmate · Faculty of Management and Social Sciences · sample class: Business Management 200 Level</p>
+      </div>
+    </div>
+    <nav class="tabs" aria-label="Demo views">
+      <a href="#student" data-tab="student">Student</a>
+      <a href="#staff" data-tab="staff">Lecturer</a>
+      <a href="#report" data-tab="report">Weekly report</a>
+    </nav>
+  </header>
+
+  <!-- STUDENT -->
+  <section class="page" id="page-student" aria-label="Student view">
+    <div class="phone">
+      <div class="screen">
+        <div class="chat-head">
+          <div class="avatar" aria-hidden="true">B</div>
+          <div><strong>Baze University AI</strong><span>Powered by Seatmate · course buddy</span></div>
+        </div>
+        <div class="chat" id="chat" aria-live="polite"></div>
+        <div class="composer" aria-hidden="true">
+          <span>Message</span>
+          <i><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a3 3 0 0 1 3 3v6a3 3 0 0 1-6 0V6a3 3 0 0 1 3-3z"/><path d="M19 11a7 7 0 0 1-14 0M12 18v3"/></svg></i>
+        </div>
+        <div class="web" id="web" role="region" aria-label="Quiz page">
+          <div class="web-bar">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
+            <span>Your quiz page · no login</span>
+            <button class="btn" type="button" id="closeQuiz">Back to chat</button>
+          </div>
+          <div class="web-body">
+            <div class="meta">BUA 201 · Lecture 6 · Question 1 of 5</div>
+            <h3>Quick quiz</h3>
+            <div class="progress"><i></i></div>
+            <p class="q">In Herzberg's two-factor theory, which of these is a hygiene factor?</p>
+            <div>
+              <button class="opt" type="button" data-ok="0">A. Recognition for good work</button>
+              <button class="opt" type="button" data-ok="1">B. Salary</button>
+              <button class="opt" type="button" data-ok="0">C. A sense of achievement</button>
+              <button class="opt" type="button" data-ok="0">D. Responsibility for your own work</button>
+            </div>
+            <div class="explain" id="explain" hidden>
+              <strong>B.</strong> Hygiene factors such as pay, working conditions, company policy and supervision stop people feeling dissatisfied, but they don't motivate. Motivators come from the work itself: achievement, recognition, responsibility and growth. <span class="meta">Lecture 6, slide 9</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="controls">
+      <button class="btn" type="button" id="back">Back</button>
+      <span class="count" id="count">1 of 10</span>
+      <button class="btn primary" type="button" id="next">Next</button>
+      <button class="restart" type="button" id="restart">Start again</button>
+    </div>
+  </section>
+
+  <!-- LECTURER -->
+  <section class="page" id="page-staff" aria-label="Lecturer view">
+    <div class="phone">
+      <div class="screen">
+        <div class="chat-head">
+          <div class="avatar" aria-hidden="true">B</div>
+          <div><strong>Baze University AI</strong><span>Staff · Dr Bello</span></div>
+        </div>
+        <div class="chat">
+          <div class="day">Wednesday</div>
+          <div class="msg me">Move Friday's BUA 201 test to 12:00, same venue<span class="time">10:14</span></div>
+          <div class="msg bot"><span class="tag">Staff update</span><br>BUA 201 test: Friday, 12:00, LT2 (was 10:00). Save it for the class?<span class="time">10:14</span><div class="actions"><button type="button" tabindex="-1">Confirm</button><button type="button" tabindex="-1">Edit</button></div></div>
+          <div class="msg me">Confirm<span class="time">10:15</span></div>
+          <div class="msg bot">Done. All 212 students get the new time when they ask, and it's in tomorrow's morning update.<span class="time">10:15</span></div>
+          <div class="day">Sunday</div>
+          <div class="msg bot"><span class="tag">Report ready · week 6</span><br><b>BUA 201</b>: 131 of 212 students active this week.<br><br>Weak spots:<br>1. Herzberg: hygiene factors vs motivators (58% missed)<br>2. Unity of command vs unity of direction (44%)<br>3. Line vs staff authority (31%)<span class="time">21:00</span><div class="actions"><button type="button" id="toReport">Open full report</button></div></div>
+        </div>
+        <div class="composer" aria-hidden="true"><span>Message</span><i><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a3 3 0 0 1 3 3v6a3 3 0 0 1-6 0V6a3 3 0 0 1 3-3z"/><path d="M19 11a7 7 0 0 1-14 0M12 18v3"/></svg></i></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- REPORT -->
+  <section class="page" id="page-report" aria-label="Weekly lecturer report">
+    <div class="doc">
+      <div class="doc-head">
+        <div>
+          <div class="eyebrow">Weekly report · week 6</div>
+          <h2>BUA 201 Principles of Business Administration I</h2>
+          <p class="fine" style="margin:4px 0 0">For Dr Bello · ready Sunday night</p>
+        </div>
+        <span class="sample">Sample report</span>
+      </div>
+      <div class="stats">
+        <div class="card stat"><b>131 of 212</b><span>students used it this week</span></div>
+        <div class="card stat"><b>1,486</b><span>quiz answers on this module</span></div>
+        <div class="card stat"><b>318</b><span>questions asked about this module</span></div>
+      </div>
+      <div class="card">
+        <div class="eyebrow" style="margin-bottom:8px">Where the class is weak</div>
+        <div class="topic"><div class="rank">1</div><div>
+          <h3>Herzberg: hygiene factors versus motivators</h3>
+          <p>Most put salary down as a motivator. Herzberg lists it as a hygiene factor: it stops dissatisfaction but doesn't motivate. Lecture 6, slide 9.</p>
+          <div class="bar"><div class="track"><i style="width:58%"></i></div><span>58% missed</span></div>
+        </div></div>
+        <div class="topic"><div class="rank">2</div><div>
+          <h3>Fayol: unity of command versus unity of direction</h3>
+          <p>Students mix up one boss per person with one plan per group of activities. Lecture 3, slides 14 to 15.</p>
+          <div class="bar"><div class="track"><i style="width:44%"></i></div><span>44% missed</span></div>
+        </div></div>
+        <div class="topic"><div class="rank">3</div><div>
+          <h3>Line authority versus staff authority</h3>
+          <p>Asked about 41 times this week, mostly the night before the tutorial. Lecture 5, slide 6.</p>
+          <div class="bar"><div class="track"><i style="width:31%"></i></div><span>31% missed</span></div>
+        </div></div>
+      </div>
+      <div class="two">
+        <div class="card">
+          <div class="eyebrow" style="margin-bottom:10px">What students asked (no names)</div>
+          <p class="quote">"If pay doesn't motivate people, why do they work harder for a bonus?"</p>
+          <p class="quote">"Does the test need all 14 of Fayol's principles, or just the five functions?"</p>
+          <p class="quote">"Is Maslow's hierarchy in the exam, or only Herzberg?"</p>
+        </div>
+        <div class="card">
+          <div class="eyebrow" style="margin-bottom:10px">Suggested 10-minute recap</div>
+          <ul class="clean">
+            <li>Put Herzberg's two lists side by side and sort five workplace examples with the class.</li>
+            <li>Say which of Fayol's 14 principles the test expects, since students are unsure.</li>
+            <li>One short case: a staff member gets opposite instructions from two managers. Which principle is broken?</li>
+          </ul>
+        </div>
+      </div>
+      <div class="two">
+        <div class="card">
+          <div class="eyebrow" style="margin-bottom:10px">Points most essay plans left out · BUA 205</div>
+          <ul class="clean">
+            <li>The four parts of transformational leadership, the "four I's" (left out of 71% of plans).</li>
+            <li>When each style suits the situation, for example Fiedler's contingency model (left out of 64%).</li>
+          </ul>
+        </div>
+        <div class="card">
+          <div class="eyebrow" style="margin-bottom:10px">From next year</div>
+          <p style="margin:0">Compare this class with last year's: which topics lost marks in the exam, and whether this class is struggling in the same places.</p>
+        </div>
+      </div>
+      <p class="fine">This report describes the class only. It never names, ranks or grades a student.</p>
+    </div>
+  </section>
+</div>
+
+<script>
+(function(){
+  "use strict";
+  var cfg = {product:"Baze University AI", uniShort:"Baze", programmeShort:"Business Management 200 Level",
+    m1code:"BUA 201", lect1:"Dr Bello", m2code:"BUA 205", lect2:"Dr Okafor",
+    student:"Tolu", rep:"Amaka", pet:"Kola", venue:"LT2",
+    support:"the Student Counselling Unit", supportContact:"Block A, ground floor"};
+  function esc(s){ return String(s).replace(/[&<>"]/g, function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c]; }); }
+  function t(s){ return s.replace(/\{(\w+)\}/g, function(_, k){ return esc(cfg[k] != null ? cfg[k] : ""); }); }
+
+  var MAP = '<svg viewBox="0 0 320 96" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><rect width="320" height="96" fill="var(--paper)"/><path d="M0 62h320M118 0v96M228 0v96" stroke="var(--line)" stroke-width="10"/><rect x="132" y="14" width="80" height="36" rx="4" fill="var(--biro-tint)" stroke="var(--biro)"/><circle cx="172" cy="32" r="7" fill="var(--biro)"/><circle cx="172" cy="32" r="2.5" fill="#fff"/></svg>';
+  var WAVE = [6,12,18,9,20,14,7,16,22,11,8,17,13,6,19,10,15,8,12,5].map(function(x){return '<i style="height:'+x+'px"></i>';}).join("");
+
+  var STEPS = [
+    {msgs:[
+      {day:"Monday"},
+      {me:"Hi"},
+      {bot:"Hey {student}! I'm {product}, your course buddy for {programmeShort}: classes, deadlines, events and study help, all in this one chat.\n\nI keep your first name, programme and what you ask me, so I can help. Nothing else. Type \"delete my data\" any time.", actions:["I agree"]},
+      {me:"I agree"},
+      {bot:"You're in. How should I talk to you?", chips:["Chill","Straight to the point","Hype me up"]},
+      {me:"Chill"},
+      {bot:"Chill it is. Ask me about your timetable, deadlines or any of your modules."}
+    ]},
+    {msgs:[
+      {day:"Tuesday"},
+      {me:"what do I have today"},
+      {bot:"Tuesday:\n8:00  {m1code} lecture · {venue}\n11:00  {m2code} lecture · LT4\n2:00  {m1code} tutorial · cancelled\n\nHeads up: {m1code} test is Friday, 10:00, {venue}.", tag:"From the timetable", pin:true}
+    ]},
+    {msgs:[
+      {me:"is the 2pm tutorial still on?"},
+      {bot:"Nope, cancelled. {rep} (class rep) posted it at 9:41.\n\nFree afternoon. Want a quick warm-up for Friday's test?", tag:"Update from the class rep", actions:["Quiz me","Not now"]}
+    ]},
+    {msgs:[
+      {me:"whats the difference between taylor and fayol, they sound the same"},
+      {bot:"Easy to mix up. Taylor looks at the worker's task, Fayol at the manager's job.\n\nTaylor (scientific management): find the one best way to do each job, train people in it, and pay by output. Fayol (administrative management): plan, organise, command, coordinate and control, plus his 14 principles.\n\nShort version: Taylor fixes the job, Fayol fixes the management.", src:"{m1code} · Lecture 3 · slide 11", actions:["Quiz me","Teach me","Switch module"]}
+    ]},
+    {msgs:[
+      {me:"Quiz me"},
+      {bot:"", quiz:true}
+    ]},
+    {msgs:[], openQuiz:true},
+    {msgs:[
+      {bot:"4 out of 5.\n\nThe one you missed: salary is a hygiene factor, not a motivator. Fixing pay stops complaints, but it doesn't motivate.", src:"{m1code} · Lecture 6 · slide 10"},
+      {bot:"Class is at 240 of 300 questions this week. {pet} the tortoise is one push from stage 3.", tag:"Class goal"}
+    ]},
+    {msgs:[
+      {me:"can you write my {m2code} essay on transformational vs transactional leadership"},
+      {bot:"{lect2} set this one to ideas and planning, so no full draft from me. Let's build your plan:\n\n1. Define both styles (Burns, then Bass)\n2. Transactional: rewards for hitting targets. Transformational: the four I's\n3. When each one works, using the case from Lecture 5\n\nWant to start with point 2?", tag:"AI level: ideas and planning"}
+    ]},
+    {msgs:[
+      {me:"", voice:"0:38"},
+      {bot:"Nice. You nailed it: Fiedler says a leader's style is fixed, so you match the leader to the situation.\n\nOne gap: you didn't name what makes a situation favourable: leader-member relations, task structure and position power.", src:"{m2code} · Lecture 4 · slide 7"}
+    ]},
+    {msgs:[
+      {me:"honestly im so stressed about friday i cant sleep"},
+      {bot:"That sounds rough, and Friday is very doable.\n\n1. Twenty minutes on slides 9 to 15 tonight, then stop.\n2. Sleep will help more than another hour of reading.\n3. If the stress keeps up, talk to {support}.\n\nWant a 5-question warm-up tomorrow morning instead?"}
+    ]}
+  ];
+
+  var chat = document.getElementById("chat");
+  var web = document.getElementById("web");
+  var current = -1, busy = false;
+  var reduced = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var BASE = [8*60+2, 7*60+15, 9*60+52, 13*60+5, 13*60+6, 13*60+9, 13*60+14, 16*60+30, 16*60+42, 23*60+11];
+  function timeFor(i){ var m = BASE[Math.max(0, Math.min(9, current))] + i; return String(Math.floor(m/60)%24).padStart(2,"0") + ":" + String(m%60).padStart(2,"0"); }
+
+  function bubble(m, i){
+    if (m.day) { var d = document.createElement("div"); d.className = "day"; d.textContent = m.day; return d; }
+    var el = document.createElement("div");
+    if (m.me != null) {
+      el.className = "msg me";
+      if (m.voice) {
+        el.innerHTML = '<div class="voice"><span class="play"><svg width="12" height="12" viewBox="0 0 24 24" fill="#fff" aria-hidden="true"><path d="M7 4v16l13-8z"/></svg></span><span class="wave" aria-hidden="true">'+WAVE+'</span><small>'+m.voice+'</small></div><span class="time">'+timeFor(i)+'</span>';
+        el.setAttribute("aria-label", "Voice note, " + m.voice);
+      } else el.innerHTML = t(m.me) + '<span class="time">'+timeFor(i)+'</span>';
+      return el;
+    }
+    if (m.chips) {
+      var frag = document.createDocumentFragment();
+      var b = document.createElement("div"); b.className = "msg bot"; b.innerHTML = t(m.bot) + '<span class="time">'+timeFor(i)+'</span>';
+      var c = document.createElement("div"); c.className = "chips";
+      m.chips.forEach(function(x){ var btn = document.createElement("button"); btn.type = "button"; btn.textContent = x; btn.addEventListener("click", function(){ tapReply(x); }); c.appendChild(btn); });
+      frag.appendChild(b); frag.appendChild(c); return frag;
+    }
+    el.className = "msg bot";
+    var html = m.tag ? '<span class="tag">'+t(m.tag)+'</span><br>' : "";
+    if (m.quiz) {
+      el.innerHTML = '<div class="quizcard"><span class="tag">Quick quiz</span><b>'+t("{m1code} · Lecture 6")+'</b>5 questions, about 2 minutes. Opens in your browser.</div><span class="time">'+timeFor(i)+'</span><div class="actions"><button type="button" data-open="1">Open quiz</button></div>';
+      el.querySelector("[data-open]").addEventListener("click", function(){ if (current === 4) next(); else openQuiz(); });
+      return el;
+    }
+    html += t(m.bot);
+    if (m.src) html += '<br><span class="src"><i aria-hidden="true"></i>'+t(m.src)+'</span>';
+    if (m.pin) html += '<div class="pin">'+MAP+'<div><b>'+t("{venue}")+'</b>Faculty of Management and Social Sciences · tap for directions</div></div>';
+    html += '<span class="time">'+timeFor(i)+'</span>';
+    if (m.actions) html += '<div class="actions">' + m.actions.map(function(a){ return '<button type="button">'+esc(a)+'</button>'; }).join("") + '</div>';
+    el.innerHTML = html;
+    el.querySelectorAll(".actions button").forEach(function(b){ b.addEventListener("click", function(){ tapReply(b.textContent); }); });
+    return el;
+  }
+  function tapReply(label){ var nx = STEPS[current + 1]; if (nx && nx.msgs.length && nx.msgs[0].me === label) next(); }
+  function scrollDown(){ chat.scrollTop = chat.scrollHeight; }
+  function wait(ms){ return new Promise(function(r){ setTimeout(r, reduced ? 0 : ms); }); }
+
+  function renderStep(k, animate){
+    var s = STEPS[k];
+    if (!animate) {
+      s.msgs.forEach(function(m, i){ chat.appendChild(bubble(m, i)); });
+      if (s.openQuiz) openQuiz(); else closeQuiz(true);
+      scrollDown(); return;
+    }
+    busy = true; closeQuiz(true);
+    var p = Promise.resolve();
+    s.msgs.forEach(function(m, i){
+      p = p.then(function(){
+        if (m.bot != null) {
+          var ty = document.createElement("div"); ty.className = "typing"; ty.innerHTML = "<i></i><i></i><i></i>"; ty.setAttribute("aria-label","Typing");
+          chat.appendChild(ty); scrollDown();
+          return wait(m.bot.length > 160 ? 1100 : 650).then(function(){ ty.remove(); chat.appendChild(bubble(m, i)); scrollDown(); return wait(250); });
+        }
+        chat.appendChild(bubble(m, i)); scrollDown(); return wait(350);
+      });
+    });
+    p.then(function(){ if (s.openQuiz) openQuiz(); busy = false; });
+  }
+  function updateControls(){
+    document.getElementById("count").textContent = (current + 1) + " of " + STEPS.length;
+    document.getElementById("back").disabled = current === 0;
+    document.getElementById("next").disabled = current === STEPS.length - 1;
+  }
+  function goTo(k){
+    if (busy) return;
+    chat.innerHTML = "";
+    for (var i = 0; i <= k; i++) { current = i; renderStep(i, false); }
+    updateControls();
+  }
+  function next(){ if (busy || current >= STEPS.length - 1) return; current += 1; updateControls(); renderStep(current, true); }
+  function back(){ if (current > 0) goTo(current - 1); }
+  function openQuiz(){
+    web.classList.add("open");
+    document.querySelectorAll(".opt").forEach(function(o){ o.classList.remove("right","wrong"); o.disabled = false; });
+    document.getElementById("explain").hidden = true;
+  }
+  function closeQuiz(silent){ web.classList.remove("open"); if (!silent && current === 5) next(); }
+
+  document.querySelectorAll(".opt").forEach(function(o){
+    o.addEventListener("click", function(){
+      var ok = o.getAttribute("data-ok") === "1";
+      o.classList.add(ok ? "right" : "wrong");
+      if (!ok) document.querySelector('.opt[data-ok="1"]').classList.add("right");
+      document.querySelectorAll(".opt").forEach(function(x){ x.disabled = true; });
+      document.getElementById("explain").hidden = false;
+    });
+  });
+  document.getElementById("closeQuiz").addEventListener("click", function(){ closeQuiz(false); });
+  document.getElementById("toReport").addEventListener("click", function(){ location.hash = "#report"; });
+  document.getElementById("next").addEventListener("click", next);
+  document.getElementById("back").addEventListener("click", back);
+  document.getElementById("restart").addEventListener("click", function(){ goTo(0); });
+
+  function route(){
+    var h = (location.hash || "#student").slice(1);
+    if (["student","staff","report"].indexOf(h) < 0) h = "student";
+    document.querySelectorAll(".page").forEach(function(p){ p.classList.toggle("show", p.id === "page-" + h); });
+    document.querySelectorAll(".tabs a").forEach(function(a){ if (a.dataset.tab === h) a.setAttribute("aria-current","page"); else a.removeAttribute("aria-current"); });
+    window.scrollTo(0, 0);
+  }
+  window.addEventListener("hashchange", route);
+  route();
+  goTo(0);
+})();
+</script>
+</body>
+</html>
